@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React Hooks – Study Notes</title>
+
+    <style>
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 2rem;
+        background-color: #f9fafb;
+        color: #111827;
+      }
+
+      h1,
+      h2,
+      h3 {
+        color: #111827;
+      }
+
+      h1 {
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 0.5rem;
+      }
+
+      section {
+        margin-bottom: 3rem;
+      }
+
+      pre {
+        background-color: #111827;
+        color: #f9fafb;
+        padding: 1rem;
+        overflow-x: auto;
+        border-radius: 6px;
+      }
+
+      code {
+        font-family: Consolas, Monaco, monospace;
+      }
+
+      ul {
+        margin-left: 1.5rem;
+      }
+
+      .note {
+        background-color: #eef2ff;
+        padding: 1rem;
+        border-left: 4px solid #6366f1;
+        margin: 1rem 0;
+      }
+
+      .warning {
+        background-color: #fff7ed;
+        padding: 1rem;
+        border-left: 4px solid #f97316;
+        margin: 1rem 0;
+      }
+
+      footer {
+        margin-top: 4rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+        font-size: 0.9rem;
+        color: #6b7280;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>React Hooks – Study Notes</h1>
+
+    <p>
+      These notes are for revision and self-study. They summarize the purpose,
+      rules, and common use cases of React Hooks.
+    </p>
+
+    <section>
+      <h2>useState</h2>
+      <p><code>useState</code> adds local state to a function component.</p>
+
+      <ul>
+        <li>State changes trigger re-renders</li>
+        <li>State updates are asynchronous</li>
+        <li>State belongs to the component</li>
+      </ul>
+
+      <pre><code>function Counter() {
+  const [count, setCount] = React.useState(0);
+
+  return (
+    &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+      {count}
+    &lt;/button&gt;
+  );
+}</code></pre>
+
+      <div class="warning">Do not mutate state directly.</div>
+    </section>
+
+    <section>
+      <h2>useEffect</h2>
+      <p><code>useEffect</code> runs side effects after rendering.</p>
+
+      <ul>
+        <li>Fetching data</li>
+        <li>Subscriptions</li>
+        <li>Timers</li>
+      </ul>
+
+      <pre><code>React.useEffect(() => {
+  fetch("/api/users")
+    .then(res => res.json())
+    .then(data => setUsers(data));
+}, []);</code></pre>
+
+      <div class="note">Dependency array controls when the effect runs.</div>
+    </section>
+
+    <section>
+      <h2>useMemo</h2>
+      <p><code>useMemo</code> memoizes a calculated value.</p>
+
+      <ul>
+        <li>Use for derived data</li>
+        <li>Use for expensive calculations</li>
+        <li>Not needed for simple values</li>
+      </ul>
+
+      <pre><code>const activeUsers = React.useMemo(() => {
+  return users.filter(u => u.active);
+}, [users]);</code></pre>
+    </section>
+
+    <section>
+      <h2>useCallback</h2>
+      <p><code>useCallback</code> memoizes a function reference.</p>
+
+      <ul>
+        <li>Useful with memoized child components</li>
+        <li>Useful in dependency arrays</li>
+      </ul>
+
+      <pre><code>const increment = React.useCallback(() => {
+  setCount(c => c + 1);
+}, []);</code></pre>
+    </section>
+
+    <section>
+      <h2>useRef</h2>
+      <p>
+        <code>useRef</code> stores mutable values without causing re-renders.
+      </p>
+
+      <ul>
+        <li>DOM access</li>
+        <li>Timers</li>
+        <li>Persistent values</li>
+      </ul>
+
+      <pre><code>const inputRef = React.useRef(null);
+
+inputRef.current.focus();</code></pre>
+    </section>
+
+    <section>
+      <h2>Combined Example (Reference)</h2>
+      <p>Example showing common hooks used together.</p>
+
+      <pre><code>function UserSearch() {
+  const [query, setQuery] = React.useState("");
+  const [users, setUsers] = React.useState([]);
+  const inputRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!query) return;
+
+    fetch("/api/users?q=" + query)
+      .then(res => res.json())
+      .then(data => setUsers(data));
+  }, [query]);
+
+  const activeUsers = React.useMemo(() => {
+    return users.filter(u => u.active);
+  }, [users]);
+
+  return (
+    &lt;div&gt;
+      &lt;input
+        ref={inputRef}
+        value={query}
+        onChange={e => setQuery(e.target.value)}
+      /&gt;
+
+      &lt;ul&gt;
+        {activeUsers.map(u => (
+          &lt;li key={u.id}&gt;{u.name}&lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+    </section>
+
+    <footer>React Hooks revision notes.</footer>
+  </body>
+</html>
