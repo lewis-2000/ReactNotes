@@ -3,176 +3,493 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>React Practice Notes – Setup to Props & useState</title>
+    <title>React Foundations and Structure – Study Notes</title>
 
     <style>
+      :root {
+        --bg: #f5efe4;
+        --panel: #fffdf8;
+        --panel-strong: #f1e0c8;
+        --text: #2a211b;
+        --muted: #66584c;
+        --border: #d6c1a7;
+        --accent: #b5542f;
+        --accent-deep: #7a3117;
+        --note-bg: #f7ead7;
+        --warning-bg: #fde6d7;
+        --code-bg: #1f1a17;
+        --code-text: #f5efe4;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
       body {
-        font-family:
-          system-ui,
-          -apple-system,
-          BlinkMacSystemFont,
-          sans-serif;
-        line-height: 1.6;
         margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        line-height: 1.7;
+        background:
+          radial-gradient(
+            circle at top right,
+            rgba(181, 84, 47, 0.18),
+            transparent 28%
+          ),
+          linear-gradient(180deg, #f7f1e8 0%, var(--bg) 100%);
+        color: var(--text);
+      }
+
+      .page {
+        width: min(1120px, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: 2rem 0 4rem;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding: 0.9rem 1.1rem;
+        background: rgba(255, 253, 248, 0.82);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: 0 10px 24px rgba(66, 41, 24, 0.05);
+      }
+
+      .brand {
+        font-size: 0.92rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--accent-deep);
+      }
+
+      .topbar nav {
+        margin: 0;
+      }
+
+      .topbar ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .topbar a,
+      .toc a,
+      .hero a {
+        color: var(--accent-deep);
+        text-decoration: none;
+      }
+
+      .topbar a {
+        display: inline-block;
+        padding: 0.45rem 0.8rem;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: var(--panel);
+      }
+
+      .topbar a[aria-current="page"] {
+        background: var(--accent-deep);
+        border-color: var(--accent-deep);
+        color: #fff7f0;
+      }
+
+      .hero {
         padding: 2rem;
-        background-color: #f9fafb;
-        color: #111827;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 253, 248, 0.96),
+          rgba(241, 224, 200, 0.94)
+        );
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        box-shadow: 0 18px 50px rgba(66, 41, 24, 0.08);
+      }
+
+      .eyebrow {
+        margin: 0 0 0.5rem;
+        font-size: 0.8rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--accent-deep);
       }
 
       h1,
       h2,
-      h3 {
-        color: #111827;
+      h3,
+      h4 {
+        margin-top: 0;
+        color: var(--text);
       }
 
       h1 {
-        border-bottom: 2px solid #e5e7eb;
-        padding-bottom: 0.5rem;
+        font-size: clamp(2.3rem, 4vw, 4rem);
+        line-height: 1.1;
+        margin-bottom: 0.75rem;
       }
 
-      section {
-        margin-bottom: 3rem;
+      h2 {
+        font-size: clamp(1.7rem, 3vw, 2.3rem);
+        margin-bottom: 1rem;
+      }
+
+      h3 {
+        font-size: 1.15rem;
+        margin-bottom: 0.8rem;
+      }
+
+      p {
+        margin: 0 0 1rem;
+      }
+
+      .hero p:last-child,
+      .note p:last-child,
+      .warning p:last-child,
+      .card p:last-child {
+        margin-bottom: 0;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+        align-items: start;
+      }
+
+      .toc,
+      .content section,
+      .card {
+        background: rgba(255, 253, 248, 0.94);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        box-shadow: 0 12px 30px rgba(66, 41, 24, 0.06);
+      }
+
+      .toc {
+        position: sticky;
+        top: 1rem;
+        padding: 1.25rem;
+      }
+
+      .toc h2 {
+        font-size: 1.2rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .toc ul,
+      ul {
+        padding-left: 1.25rem;
+      }
+
+      .toc ul {
+        margin: 0;
+      }
+
+      .toc li + li {
+        margin-top: 0.55rem;
+      }
+
+      .content section {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .lead-grid,
+      .two-column,
+      .card-grid {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .lead-grid,
+      .card-grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .two-column {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        align-items: start;
+      }
+
+      .card {
+        padding: 1rem;
+      }
+
+      .card h4 {
+        margin-bottom: 0.5rem;
       }
 
       pre {
-        background-color: #111827;
-        color: #f9fafb;
+        margin: 1rem 0;
         padding: 1rem;
         overflow-x: auto;
-        border-radius: 6px;
+        border-radius: 14px;
+        background: var(--code-bg);
+        color: var(--code-text);
+        border: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       code {
         font-family: Consolas, Monaco, monospace;
       }
 
-      ul {
-        margin-left: 1.5rem;
+      .note,
+      .warning {
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 14px;
+        border: 1px solid var(--border);
       }
 
       .note {
-        background-color: #eef2ff;
-        padding: 1rem;
-        border-left: 4px solid #6366f1;
-        margin: 1rem 0;
+        background: var(--note-bg);
       }
 
       .warning {
-        background-color: #fff7ed;
+        background: var(--warning-bg);
+      }
+
+      .label {
+        display: inline-block;
+        margin-bottom: 0.6rem;
+        padding: 0.28rem 0.55rem;
+        border-radius: 999px;
+        background: var(--panel-strong);
+        color: var(--accent-deep);
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .tree,
+      .folder-tree,
+      .flow {
         padding: 1rem;
-        border-left: 4px solid #f97316;
-        margin: 1rem 0;
+        border-radius: 14px;
+        border: 1px dashed var(--border);
+        background: var(--panel);
+        font-family: Consolas, Monaco, monospace;
+        white-space: pre-wrap;
       }
 
       footer {
-        margin-top: 4rem;
-        padding-top: 1rem;
-        border-top: 1px solid #e5e7eb;
-        font-size: 0.9rem;
-        color: #6b7280;
+        margin-top: 2rem;
+        color: var(--muted);
+        font-size: 0.95rem;
+        text-align: center;
+      }
+
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .toc {
+          position: static;
+        }
+
+        .topbar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
       }
     </style>
   </head>
 
   <body>
-    <h1>React Practice Notes</h1>
-    <p>
-      <strong>Scope:</strong> Project setup → components → props → intro to
-      useState
-    </p>
+    <div class="page">
+      <div class="topbar">
+        <div class="brand">React Notes</div>
+        <nav>
+          <ul>
+            <li><a href="index.html" aria-current="page">Foundations</a></li>
+            <li><a href="reacthooks.html">Patterns and Hooks</a></li>
+          </ul>
+        </nav>
+      </div>
 
-    <section>
-      <!-- Setting up a React project -->
-      <h2>1. Setting up a React project (Vite)</h2>
+      <header class="hero">
+        <p class="eyebrow">Foundations</p>
+        <h1>React Foundations and Structure</h1>
+        <p>
+          This page covers the first layer of React: project setup, how files
+          are organized, how components connect, the order components render,
+          and where state and data loading should live.
+        </p>
+        <div class="lead-grid">
+          <div class="card">
+            <h4>Main idea</h4>
+            <p>
+              React apps stay readable when file structure and data flow are
+              predictable.
+            </p>
+          </div>
+          <div class="card">
+            <h4>What to learn first</h4>
+            <p>
+              Understand <code>main.jsx</code>, <code>App.jsx</code>,
+              components, props, and state ownership.
+            </p>
+          </div>
+          <div class="card">
+            <h4>Next page</h4>
+            <p>
+              <a href="reacthooks.html"
+                >Continue to patterns and custom hooks</a
+              >
+            </p>
+          </div>
+        </div>
+      </header>
 
-      <p>We use <strong>Vite</strong> because it is fast and simple.</p>
+      <div class="layout">
+        <aside class="toc">
+          <h2>On this page</h2>
+          <nav>
+            <ul>
+              <li><a href="#setup">1. Setup</a></li>
+              <li><a href="#files">2. Important Files</a></li>
+              <li>
+                <a href="#organization">3. How React Files Are Organized</a>
+              </li>
+              <li><a href="#components">4. Components and Imports</a></li>
+              <li><a href="#props-state">5. Props and State</a></li>
+              <li><a href="#tree-order">6. Component Tree and Order</a></li>
+              <li><a href="#data-loading">7. Where Data Is Loaded</a></li>
+            </ul>
+          </nav>
+        </aside>
 
-      <pre><code>npm create vite@latest my-react-app</code></pre>
+        <main class="content">
+          <section id="setup">
+            <span class="label">Start</span>
+            <h2>Setting up a React project</h2>
+            <p>Vite is a good beginner setup because it is fast and minimal.</p>
 
-      <p>Choose:</p>
-      <ul>
-        <li>Framework → <strong>React</strong></li>
-        <li>Variant → <strong>JavaScript</strong></li>
-      </ul>
+            <pre><code>npm create vite@latest my-react-app</code></pre>
 
-      <pre><code>cd my-react-app
+            <p>Choose React and JavaScript, then run:</p>
+
+            <pre><code>cd my-react-app
 npm install
 npm run dev</code></pre>
 
-      <p>Open the browser at the local address shown in the terminal.</p>
-    </section>
+            <div class="note">
+              The development server shows a local URL. Open that URL in the
+              browser to see the app.
+            </div>
+          </section>
 
-    <section>
-      <!-- Important files & folders -->
-      <h2>2. Important files & folders</h2>
+          <section id="files">
+            <span class="label">Files</span>
+            <h2>Important React files</h2>
+            <div class="two-column">
+              <div>
+                <h3>Root folder</h3>
+                <ul>
+                  <li>
+                    <strong>package.json</strong> holds scripts and
+                    dependencies.
+                  </li>
+                  <li>
+                    <strong>index.html</strong> is the single HTML entry point.
+                  </li>
+                  <li><strong>src/</strong> contains almost all React code.</li>
+                  <li>
+                    <strong>node_modules/</strong> is installed code you usually
+                    do not edit.
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h3>Inside package.json</h3>
+                <ul>
+                  <li>
+                    <strong>scripts</strong> run commands like
+                    <code>npm run dev</code>.
+                  </li>
+                  <li>
+                    <strong>dependencies</strong> are libraries used in the app.
+                  </li>
+                  <li>
+                    <strong>devDependencies</strong> are tools used during
+                    development.
+                  </li>
+                </ul>
+              </div>
+            </div>
 
-      <h3>Root folder</h3>
-      <ul>
-        <li><strong>package.json</strong></li>
-        <li><strong>node_modules/</strong> (do not touch)</li>
-        <li><strong>index.html</strong></li>
-        <li><strong>src/</strong></li>
-      </ul>
+            <div class="warning">
+              Beginners often try to put React code in <code>index.html</code>.
+              In a Vite app, React code belongs in <code>src</code>.
+            </div>
+          </section>
 
-      <h3>package.json</h3>
-      <ul>
-        <li>
-          <strong>scripts</strong> – commands like <code>npm run dev</code>
-        </li>
-        <li><strong>dependencies</strong> – libraries used by the app</li>
-        <li><strong>devDependencies</strong> – development tools</li>
-      </ul>
+          <section id="organization">
+            <span class="label">Structure</span>
+            <h2>How React files are organized</h2>
+            <p>Keep files grouped by what they do, not by random names.</p>
 
-      <div class="note">
-        You usually do not edit <code>package.json</code> manually as a
-        beginner.
-      </div>
-    </section>
+            <div class="folder-tree">
+              src ├── components │ ├── Navbar.jsx │ ├── UserCard.jsx │ └──
+              SearchBar.jsx │ ├── pages │ ├── Home.jsx │ └── Profile.jsx │ ├──
+              hooks │ └── useFetch.js │ ├── context │ └── UserContext.js │ ├──
+              App.jsx └── main.jsx
+            </div>
 
-    <section>
-      <!-- Folder Structure -->
-      <h2>3. src folder structure</h2>
+            <div class="card-grid">
+              <div class="card">
+                <h4>main.jsx</h4>
+                <p>
+                  Starts React and renders the root <code>App</code> component.
+                </p>
+              </div>
+              <div class="card">
+                <h4>App.jsx</h4>
+                <p>Top-level layout and shared providers usually live here.</p>
+              </div>
+              <div class="card">
+                <h4>pages</h4>
+                <p>
+                  Route-level screens that compose multiple smaller components.
+                </p>
+              </div>
+              <div class="card">
+                <h4>components</h4>
+                <p>Reusable UI pieces with one focused job each.</p>
+              </div>
+            </div>
 
-      <pre><code>src/
-  components/
-  pages/
-  App.jsx
-  main.jsx</code></pre>
+            <div class="note">
+              A simple rule: page files assemble the screen, component files
+              handle smaller UI pieces, and hook files hold reusable behavior.
+            </div>
+          </section>
 
-      <ul>
-        <li>Component files start with a <strong>capital letter</strong></li>
-        <li>Folders use <strong>lowercase</strong></li>
-        <li>One component per file</li>
-      </ul>
-    </section>
+          <section id="components">
+            <span class="label">Components</span>
+            <h2>Components and imports</h2>
+            <p>A React component is a JavaScript function that returns JSX.</p>
 
-    <!-- React components -->
-    <section>
-      <h2>4. React components</h2>
-
-      <p>A React component is a JavaScript function that returns JSX.</p>
-
-      <pre><code>function Greeting() {
+            <pre><code>function Greeting() {
   return &lt;h1&gt;Hello React&lt;/h1&gt;;
 }
 
 export default Greeting;</code></pre>
 
-      <div class="warning">
-        <strong>Do NOT:</strong>
-        <ul>
-          <li>Manipulate the DOM manually</li>
-          <li>Return multiple elements without a wrapper</li>
-          <li>Name components with lowercase letters</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- Importing and using components -->
-    <section>
-      <h2>5. Importing and using components</h2>
-
-      <pre><code>import Greeting from "./components/Greeting";
+            <pre><code>import Greeting from "./components/Greeting";
 
 function App() {
   return (
@@ -184,17 +501,25 @@ function App() {
 
 export default App;</code></pre>
 
-      <p>
-        <strong>export</strong> makes code reusable.
-        <strong>import</strong> brings it into another file.
-      </p>
-    </section>
+            <div class="warning">
+              <strong>Do not:</strong>
+              <ul>
+                <li>Name components with lowercase letters.</li>
+                <li>Put unrelated logic into the same large component.</li>
+                <li>Manipulate the DOM manually for normal UI updates.</li>
+              </ul>
+            </div>
+          </section>
 
-    <!-- Passing data to components (props) -->
-    <section>
-      <h2>6. Passing data to components (props)</h2>
+          <section id="props-state">
+            <span class="label">Data</span>
+            <h2>Props and basic state</h2>
+            <p>
+              Props send data into a component. State stores data owned by a
+              component.
+            </p>
 
-      <pre><code>function User({ name, age }) {
+            <pre><code>function User({ name, age }) {
   return (
     &lt;p&gt;
       My name is {name} and I am {age} years old
@@ -204,21 +529,7 @@ export default App;</code></pre>
 
 export default User;</code></pre>
 
-      <pre><code>&lt;User name="Alex" age={25} /&gt;
-&lt;User name="Sam" age={30} /&gt;</code></pre>
-
-      <ul>
-        <li>Props look like HTML attributes</li>
-        <li>Strings use quotes</li>
-        <li>Numbers and expressions use <code>{ }</code></li>
-      </ul>
-    </section>
-
-    <!-- Intro to useState -->
-    <section>
-      <h2>7. Intro to useState</h2>
-
-      <pre><code>import { useState } from "react";
+            <pre><code>import { useState } from "react";
 
 function Counter() {
   const [count, setCount] = useState(0);
@@ -226,7 +537,7 @@ function Counter() {
   return (
     &lt;div&gt;
       &lt;p&gt;Count: {count}&lt;/p&gt;
-      &lt;button onClick={() => setCount(count + 1)}&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
         Increase
       &lt;/button&gt;
     &lt;/div&gt;
@@ -235,76 +546,39 @@ function Counter() {
 
 export default Counter;</code></pre>
 
-      <ul>
-        <li><code>count</code> – current value</li>
-        <li><code>setCount</code> – updates the value</li>
-        <li>State change causes re-render</li>
-      </ul>
-    </section>
+            <ul>
+              <li>Props come from a parent component.</li>
+              <li>State belongs to the component that created it.</li>
+              <li>Updating state causes React to render again.</li>
+            </ul>
+          </section>
 
-    <!-- Component Tree -->
-    <section>
-      <h2>8. Component Tree (How React Apps Are Structured)</h2>
+          <section id="tree-order">
+            <span class="label">Flow</span>
+            <h2>Component tree and the order of React components</h2>
+            <p>
+              React apps are built as a component tree. The root component
+              renders first, then it renders child components beneath it.
+            </p>
 
-      <p>
-        React applications are structured as a <strong>component tree</strong>.
-        Each component can render other components.
-      </p>
+            <div class="tree">
+              App ├── Navbar └── Home ├── Profile └── Posts
+            </div>
 
-      <div class="note">
-        Data flows <strong>down</strong> the tree via props.
-      </div>
+            <h3>Tree to code mapping</h3>
 
-      <h3>Example Component Tree</h3>
+            <pre><code>// main.jsx
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
 
-      <svg width="600" height="400" viewBox="0 0 600 400">
-        <!-- App -->
-        <rect x="250" y="20" width="100" height="40" rx="6" fill="#6366f1" />
-        <text x="300" y="45" text-anchor="middle" fill="white">App</text>
+ReactDOM.createRoot(document.getElementById("root")).render(
+  &lt;React.StrictMode&gt;
+    &lt;App /&gt;
+  &lt;/React.StrictMode&gt;
+);</code></pre>
 
-        <!-- Lines -->
-        <line x1="300" y1="60" x2="150" y2="120" stroke="#374151" />
-        <line x1="300" y1="60" x2="450" y2="120" stroke="#374151" />
-
-        <!-- Navbar -->
-        <rect x="100" y="120" width="100" height="40" rx="6" fill="#10b981" />
-        <text x="150" y="145" text-anchor="middle" fill="white">Navbar</text>
-
-        <!-- Home -->
-        <rect x="400" y="120" width="100" height="40" rx="6" fill="#10b981" />
-        <text x="450" y="145" text-anchor="middle" fill="white">Home</text>
-
-        <!-- Lines -->
-        <line x1="450" y1="160" x2="350" y2="220" stroke="#374151" />
-        <line x1="450" y1="160" x2="550" y2="220" stroke="#374151" />
-
-        <!-- Profile -->
-        <rect x="300" y="220" width="100" height="40" rx="6" fill="#f59e0b" />
-        <text x="350" y="245" text-anchor="middle" fill="white">Profile</text>
-
-        <!-- Posts -->
-        <rect x="500" y="220" width="100" height="40" rx="6" fill="#f59e0b" />
-        <text x="550" y="245" text-anchor="middle" fill="white">Posts</text>
-      </svg>
-
-      <p>In this example:</p>
-      <ul>
-        <li><strong>App</strong> is the root component</li>
-        <li>
-          <strong>Navbar</strong> and <strong>Home</strong> are children of App
-        </li>
-        <li>
-          <strong>Profile</strong> and <strong>Posts</strong> are children of
-          Home
-        </li>
-      </ul>
-    </section>
-
-    <section>
-      <section>
-        <h3>Tree to Code Mapping</h3>
-
-        <pre><code>// App.jsx
+            <pre><code>// App.jsx
 function App() {
   return (
     &lt;&gt;
@@ -314,7 +588,7 @@ function App() {
   );
 }</code></pre>
 
-        <pre><code>// Home.jsx
+            <pre><code>// Home.jsx
 function Home() {
   return (
     &lt;&gt;
@@ -324,74 +598,87 @@ function Home() {
   );
 }</code></pre>
 
-        <div class="note">
-          If you can draw the tree, you can write the React code.
-        </div>
+            <div class="flow">
+              Render order idea: main.jsx -> App.jsx -> Navbar + Home -> Profile
+              + Posts
+            </div>
 
-        <!-- Folder Structure -->
-      </section>
+            <div class="note">
+              Data usually flows down this tree through props. Events usually
+              flow back up through callbacks.
+            </div>
+          </section>
 
-      <h2>9. Practice before next class</h2>
+          <section id="data-loading">
+            <span class="label">Loading</span>
+            <h2>Where data is loaded in React</h2>
+            <p>
+              Load data in the component that owns the screen data, or inside a
+              custom hook used by that component.
+            </p>
 
-      <ul>
-        <li>Set up a React app from scratch</li>
-        <li>Create and import components</li>
-        <li>Pass props correctly</li>
-        <li>Use basic <code>useState</code></li>
-        <li>Fix errors without panic</li>
-      </ul>
+            <div class="two-column">
+              <div>
+                <h3>Common place for fetching</h3>
+                <ul>
+                  <li>
+                    A page component like <code>Home.jsx</code> or
+                    <code>UsersPage.jsx</code>.
+                  </li>
+                  <li>A parent container that passes results down as props.</li>
+                  <li>
+                    A custom hook like <code>useFetch</code> used by that page
+                    or container.
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h3>Avoid this</h3>
+                <ul>
+                  <li>Fetching the same data in several child components.</li>
+                  <li>
+                    Putting all fetch logic directly in small presentational
+                    components.
+                  </li>
+                  <li>Spreading state ownership across unrelated files.</li>
+                </ul>
+              </div>
+            </div>
 
-      <div class="note">
-        If your app never breaks, you are not practicing enough.
+            <pre><code>import { useEffect, useState } from "react";
+
+function UsersPage() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() =&gt; {
+    fetch("/api/users")
+      .then((response) =&gt; response.json())
+      .then((result) =&gt; {
+        setUsers(result);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return &lt;p&gt;Loading...&lt;/p&gt;;
+  }
+
+  return &lt;UserList users={users} /&gt;;
+}</code></pre>
+
+            <div class="note">
+              Start by loading data in the page. If the logic repeats, move that
+              logic into a custom hook.
+            </div>
+          </section>
+        </main>
       </div>
-    </section>
 
-    <!-- Link to next class content for react hooks in reacthooks.html -->
-    <section class="note">
-      <h2>Next Class: React Hooks</h2>
-
-      <p>
-        In the next session, we focus on <strong>React Hooks</strong> — the
-        modern way to manage state, side effects, and performance in functional
-        components.
-      </p>
-
-      <h3>Hooks we will cover</h3>
-      <ul>
-        <li><code>useEffect</code> – side effects and lifecycle behavior</li>
-        <li><code>useMemo</code> – memoizing expensive calculations</li>
-        <li><code>useCallback</code> – stable function references</li>
-        <li>
-          <code>useRef</code> – accessing DOM elements and persistent values
-        </li>
-      </ul>
-
-      <p>
-        Hooks allow you to use React features such as state and lifecycle
-        behavior without writing class components. They encourage cleaner logic,
-        better reuse, and more predictable component behavior.
-      </p>
-
-      <div class="warning">
-        <strong>Key focus:</strong>
-        <code>useEffect</code> is the most important hook. We will use it for:
-        data fetching, event listeners, and cleanup when a component unmounts.
-      </div>
-
-      <p>
-        👉 For detailed explanations and reference examples, see:
-        <br />
-        <strong>
-          <a href="reacthooks.html">React Hooks – Study Notes</a>
-        </strong>
-      </p>
-    </section>
-
-    <footer>
-      <p>
-        React learning is about structure, data flow, and discipline. This
-        document will grow as the course progresses.
-      </p>
-    </footer>
+      <footer>
+        React code gets easier to maintain when the file layout, component
+        order, and data ownership stay consistent.
+      </footer>
+    </div>
   </body>
 </html>

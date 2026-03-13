@@ -3,212 +3,874 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>React Hooks – Study Notes</title>
+    <title>React Patterns and Custom Hooks – Study Notes</title>
 
     <style>
+      :root {
+        --bg: #f5efe4;
+        --panel: #fffdf8;
+        --panel-strong: #f1e0c8;
+        --text: #2a211b;
+        --muted: #66584c;
+        --border: #d6c1a7;
+        --accent: #b5542f;
+        --accent-deep: #7a3117;
+        --note-bg: #f7ead7;
+        --warning-bg: #fde6d7;
+        --code-bg: #1f1a17;
+        --code-text: #f5efe4;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
       body {
-        font-family:
-          system-ui,
-          -apple-system,
-          BlinkMacSystemFont,
-          sans-serif;
-        line-height: 1.6;
         margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        line-height: 1.7;
+        background:
+          radial-gradient(
+            circle at top right,
+            rgba(181, 84, 47, 0.18),
+            transparent 28%
+          ),
+          linear-gradient(180deg, #f7f1e8 0%, var(--bg) 100%);
+        color: var(--text);
+      }
+
+      .page {
+        width: min(1120px, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: 2rem 0 4rem;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding: 0.9rem 1.1rem;
+        background: rgba(255, 253, 248, 0.82);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: 0 10px 24px rgba(66, 41, 24, 0.05);
+      }
+
+      .brand {
+        font-size: 0.92rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--accent-deep);
+      }
+
+      .topbar nav {
+        margin: 0;
+      }
+
+      .topbar ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .topbar a,
+      .toc a,
+      .hero a {
+        color: var(--accent-deep);
+        text-decoration: none;
+      }
+
+      .topbar a {
+        display: inline-block;
+        padding: 0.45rem 0.8rem;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: var(--panel);
+      }
+
+      .topbar a[aria-current="page"] {
+        background: var(--accent-deep);
+        border-color: var(--accent-deep);
+        color: #fff7f0;
+      }
+
+      .hero {
         padding: 2rem;
-        background-color: #f9fafb;
-        color: #111827;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 253, 248, 0.96),
+          rgba(241, 224, 200, 0.94)
+        );
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        box-shadow: 0 18px 50px rgba(66, 41, 24, 0.08);
+      }
+
+      .eyebrow {
+        margin: 0 0 0.5rem;
+        font-size: 0.8rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--accent-deep);
       }
 
       h1,
       h2,
-      h3 {
-        color: #111827;
+      h3,
+      h4 {
+        margin-top: 0;
+        color: var(--text);
       }
 
       h1 {
-        border-bottom: 2px solid #e5e7eb;
-        padding-bottom: 0.5rem;
+        font-size: clamp(2.3rem, 4vw, 4rem);
+        line-height: 1.1;
+        margin-bottom: 0.75rem;
       }
 
-      section {
-        margin-bottom: 3rem;
+      h2 {
+        font-size: clamp(1.7rem, 3vw, 2.3rem);
+        margin-bottom: 1rem;
+      }
+
+      h3 {
+        font-size: 1.15rem;
+        margin-bottom: 0.8rem;
+      }
+
+      p {
+        margin: 0 0 1rem;
+      }
+
+      .hero p:last-child,
+      .note p:last-child,
+      .warning p:last-child,
+      .card p:last-child {
+        margin-bottom: 0;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+        align-items: start;
+      }
+
+      .toc,
+      .content section,
+      .card {
+        background: rgba(255, 253, 248, 0.94);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        box-shadow: 0 12px 30px rgba(66, 41, 24, 0.06);
+      }
+
+      .toc {
+        position: sticky;
+        top: 1rem;
+        padding: 1.25rem;
+      }
+
+      .toc h2 {
+        font-size: 1.2rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .toc ul,
+      ul {
+        padding-left: 1.25rem;
+      }
+
+      .toc ul {
+        margin: 0;
+      }
+
+      .toc li + li {
+        margin-top: 0.55rem;
+      }
+
+      .content section {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .lead-grid,
+      .two-column,
+      .card-grid {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .lead-grid,
+      .card-grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .two-column {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        align-items: start;
+      }
+
+      .card {
+        padding: 1rem;
+      }
+
+      .card h4 {
+        margin-bottom: 0.5rem;
       }
 
       pre {
-        background-color: #111827;
-        color: #f9fafb;
+        margin: 1rem 0;
         padding: 1rem;
         overflow-x: auto;
-        border-radius: 6px;
+        border-radius: 14px;
+        background: var(--code-bg);
+        color: var(--code-text);
+        border: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       code {
         font-family: Consolas, Monaco, monospace;
       }
 
-      ul {
-        margin-left: 1.5rem;
+      .note,
+      .warning {
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 14px;
+        border: 1px solid var(--border);
       }
 
       .note {
-        background-color: #eef2ff;
-        padding: 1rem;
-        border-left: 4px solid #6366f1;
-        margin: 1rem 0;
+        background: var(--note-bg);
       }
 
       .warning {
-        background-color: #fff7ed;
+        background: var(--warning-bg);
+      }
+
+      .label {
+        display: inline-block;
+        margin-bottom: 0.6rem;
+        padding: 0.28rem 0.55rem;
+        border-radius: 999px;
+        background: var(--panel-strong);
+        color: var(--accent-deep);
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .tree,
+      .folder-tree,
+      .flow {
         padding: 1rem;
-        border-left: 4px solid #f97316;
-        margin: 1rem 0;
+        border-radius: 14px;
+        border: 1px dashed var(--border);
+        background: var(--panel);
+        font-family: Consolas, Monaco, monospace;
+        white-space: pre-wrap;
       }
 
       footer {
-        margin-top: 4rem;
-        padding-top: 1rem;
-        border-top: 1px solid #e5e7eb;
-        font-size: 0.9rem;
-        color: #6b7280;
+        margin-top: 2rem;
+        color: var(--muted);
+        font-size: 0.95rem;
+        text-align: center;
+      }
+
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .toc {
+          position: static;
+        }
+
+        .topbar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
       }
     </style>
   </head>
 
   <body>
-    <h1>React Hooks – Study Notes</h1>
+    <div class="page">
+      <div class="topbar">
+        <div class="brand">React Notes</div>
+        <nav>
+          <ul>
+            <li><a href="index.html">Foundations</a></li>
+            <li>
+              <a href="reacthooks.html" aria-current="page"
+                >Patterns and Hooks</a
+              >
+            </li>
+          </ul>
+        </nav>
+      </div>
 
-    <p>
-      These notes are for revision and self-study. They summarize the purpose,
-      rules, and common use cases of React Hooks.
-    </p>
+      <header class="hero">
+        <p class="eyebrow">Patterns and Hooks</p>
+        <h1>React Patterns and Custom Hooks</h1>
+        <p>
+          These notes cover practical React architecture: component composition,
+          lifted state, basic context, direct DOM access with
+          <code>useRef</code>, and a step-by-step explanation of how custom
+          hooks are created and used.
+        </p>
+        <div class="lead-grid">
+          <div class="card">
+            <h4>Main idea</h4>
+            <p>
+              Split UI into small parts, keep state close to where it is needed,
+              and extract repeated behavior into hooks.
+            </p>
+          </div>
+          <div class="card">
+            <h4>Data loading</h4>
+            <p>
+              Fetch in a page or parent component first, then move the logic
+              into a custom hook when reuse appears.
+            </p>
+          </div>
+          <div class="card">
+            <h4>Related page</h4>
+            <p><a href="index.html">Back to foundations and structure</a></p>
+          </div>
+        </div>
+      </header>
 
-    <section>
-      <h2>useState</h2>
-      <p><code>useState</code> adds local state to a function component.</p>
+      <div class="layout">
+        <aside class="toc">
+          <h2>On this page</h2>
+          <nav>
+            <ul>
+              <li><a href="#composition">1. Component Composition</a></li>
+              <li><a href="#lifting-state">2. Lifting State Up</a></li>
+              <li><a href="#use-ref">3. useRef Example</a></li>
+              <li><a href="#context">4. Simple useContext</a></li>
+              <li><a href="#folders">5. Folder Architecture</a></li>
+              <li><a href="#hook-building">6. How Custom Hooks Are Made</a></li>
+              <li><a href="#custom-hooks">7. Custom Hook Examples</a></li>
+              <li><a href="#rules">8. Key Hook Rules</a></li>
+            </ul>
+          </nav>
+        </aside>
 
-      <ul>
-        <li>State changes trigger re-renders</li>
-        <li>State updates are asynchronous</li>
-        <li>State belongs to the component</li>
-      </ul>
+        <main class="content">
+          <section id="composition">
+            <span class="label">Pattern 1</span>
+            <h2>Component Composition</h2>
+            <p>
+              Instead of one huge component, split responsibilities into smaller
+              focused components.
+            </p>
 
-      <pre><code>function Counter() {
-  const [count, setCount] = React.useState(0);
+            <div class="two-column">
+              <div>
+                <h3>Bad Example: Everything in One Component</h3>
+                <pre><code>import { useState } from "react";
 
-  return (
-    &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
-      {count}
-    &lt;/button&gt;
-  );
-}</code></pre>
+function TodoApp() {
+  const [todos, setTodos] = useState([]);
+  const [text, setText] = useState("");
 
-      <div class="warning">Do not mutate state directly.</div>
-    </section>
-
-    <section>
-      <h2>useEffect</h2>
-      <p><code>useEffect</code> runs side effects after rendering.</p>
-
-      <ul>
-        <li>Fetching data</li>
-        <li>Subscriptions</li>
-        <li>Timers</li>
-      </ul>
-
-      <pre><code>React.useEffect(() => {
-  fetch("/api/users")
-    .then(res => res.json())
-    .then(data => setUsers(data));
-}, []);</code></pre>
-
-      <div class="note">Dependency array controls when the effect runs.</div>
-    </section>
-
-    <section>
-      <h2>useMemo</h2>
-      <p><code>useMemo</code> memoizes a calculated value.</p>
-
-      <ul>
-        <li>Use for derived data</li>
-        <li>Use for expensive calculations</li>
-        <li>Not needed for simple values</li>
-      </ul>
-
-      <pre><code>const activeUsers = React.useMemo(() => {
-  return users.filter(u => u.active);
-}, [users]);</code></pre>
-    </section>
-
-    <section>
-      <h2>useCallback</h2>
-      <p><code>useCallback</code> memoizes a function reference.</p>
-
-      <ul>
-        <li>Useful with memoized child components</li>
-        <li>Useful in dependency arrays</li>
-      </ul>
-
-      <pre><code>const increment = React.useCallback(() => {
-  setCount(c => c + 1);
-}, []);</code></pre>
-    </section>
-
-    <section>
-      <h2>useRef</h2>
-      <p>
-        <code>useRef</code> stores mutable values without causing re-renders.
-      </p>
-
-      <ul>
-        <li>DOM access</li>
-        <li>Timers</li>
-        <li>Persistent values</li>
-      </ul>
-
-      <pre><code>const inputRef = React.useRef(null);
-
-inputRef.current.focus();</code></pre>
-    </section>
-
-    <section>
-      <h2>Combined Example (Reference)</h2>
-      <p>Example showing common hooks used together.</p>
-
-      <pre><code>function UserSearch() {
-  const [query, setQuery] = React.useState("");
-  const [users, setUsers] = React.useState([]);
-  const inputRef = React.useRef(null);
-
-  React.useEffect(() => {
-    if (!query) return;
-
-    fetch("/api/users?q=" + query)
-      .then(res => res.json())
-      .then(data => setUsers(data));
-  }, [query]);
-
-  const activeUsers = React.useMemo(() => {
-    return users.filter(u => u.active);
-  }, [users]);
+  function addTodo() {
+    setTodos([...todos, text]);
+    setText("");
+  }
 
   return (
     &lt;div&gt;
+      &lt;h1&gt;Todos&lt;/h1&gt;
+
       &lt;input
-        ref={inputRef}
-        value={query}
-        onChange={e => setQuery(e.target.value)}
+        value={text}
+        onChange={(e) =&gt; setText(e.target.value)}
       /&gt;
 
+      &lt;button onClick={addTodo}&gt;Add&lt;/button&gt;
+
       &lt;ul&gt;
-        {activeUsers.map(u => (
-          &lt;li key={u.id}&gt;{u.name}&lt;/li&gt;
+        {todos.map((todo, index) =&gt; (
+          &lt;li key={index}&gt;{todo}&lt;/li&gt;
         ))}
       &lt;/ul&gt;
     &lt;/div&gt;
   );
-}</code></pre>
-    </section>
+}
 
-    <footer>React Hooks revision notes.</footer>
+export default TodoApp;</code></pre>
+
+                <div class="warning">
+                  <strong>Problem:</strong>
+                  <ul>
+                    <li>
+                      UI logic, list logic, and input logic are mixed together.
+                    </li>
+                    <li>The component is harder to test, read, and reuse.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div>
+                <h3>Better Example: Split Components</h3>
+                <pre><code>// App.jsx
+import { useState } from "react";
+import TodoInput from "./TodoInput";
+import TodoList from "./TodoList";
+
+function App() {
+  const [todos, setTodos] = useState([]);
+
+  function addTodo(text) {
+    setTodos([...todos, text]);
+  }
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Todo App&lt;/h1&gt;
+
+      &lt;TodoInput onAdd={addTodo} /&gt;
+      &lt;TodoList todos={todos} /&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default App;</code></pre>
+
+                <pre><code>// TodoInput.jsx
+import { useState } from "react";
+
+function TodoInput({ onAdd }) {
+  const [text, setText] = useState("");
+
+  function handleAdd() {
+    onAdd(text);
+    setText("");
+  }
+
+  return (
+    &lt;div&gt;
+      &lt;input
+        value={text}
+        onChange={(e) =&gt; setText(e.target.value)}
+      /&gt;
+      &lt;button onClick={handleAdd}&gt;Add&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default TodoInput;</code></pre>
+
+                <pre><code>// TodoList.jsx
+function TodoList({ todos }) {
+  return (
+    &lt;ul&gt;
+      {todos.map((todo, index) =&gt; (
+        &lt;li key={index}&gt;{todo}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}
+
+export default TodoList;</code></pre>
+              </div>
+            </div>
+
+            <div class="note">
+              <strong>Key lesson:</strong> each component should have one clear
+              job.
+            </div>
+          </section>
+
+          <section id="lifting-state">
+            <span class="label">Pattern 2</span>
+            <h2>Lifting State Up</h2>
+            <p>
+              When two components need the same data, the closest common parent
+              should own that state.
+            </p>
+
+            <div class="tree">App ├── SearchBar └── ResultsList</div>
+
+            <pre><code>// App.jsx
+import { useState } from "react";
+import SearchBar from "./SearchBar";
+import ResultsList from "./ResultsList";
+
+function App() {
+  const [query, setQuery] = useState("");
+
+  return (
+    &lt;div&gt;
+      &lt;SearchBar onSearch={setQuery} /&gt;
+      &lt;ResultsList query={query} /&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default App;</code></pre>
+
+            <pre><code>// SearchBar.jsx
+function SearchBar({ onSearch }) {
+  function handleChange(e) {
+    onSearch(e.target.value);
+  }
+
+  return &lt;input placeholder="Search..." onChange={handleChange} /&gt;;
+}
+
+export default SearchBar;</code></pre>
+
+            <pre><code>// ResultsList.jsx
+function ResultsList({ query }) {
+  return &lt;p&gt;Searching for: {query}&lt;/p&gt;;
+}
+
+export default ResultsList;</code></pre>
+
+            <div class="note">
+              The rule is simple: the closest common parent owns the shared
+              state.
+            </div>
+          </section>
+
+          <section id="use-ref">
+            <span class="label">Pattern 3</span>
+            <h2>useRef Example</h2>
+            <p>
+              <code>useRef</code> stores a value without causing re-renders. A
+              good beginner use case is focusing an input.
+            </p>
+
+            <pre><code>import { useRef } from "react";
+
+function FocusInput() {
+  const inputRef = useRef(null);
+
+  function focusInput() {
+    inputRef.current.focus();
+  }
+
+  return (
+    &lt;div&gt;
+      &lt;input ref={inputRef} /&gt;
+      &lt;button onClick={focusInput}&gt;Focus Input&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default FocusInput;</code></pre>
+
+            <div class="note">
+              React normally updates the UI for you, but refs are useful when
+              you need direct access to a DOM element.
+            </div>
+          </section>
+
+          <section id="context">
+            <span class="label">Pattern 4</span>
+            <h2>Simple useContext Example</h2>
+            <p>
+              Context helps when passing props through many levels becomes
+              repetitive.
+            </p>
+
+            <div class="tree">App └── Navbar └── UserMenu</div>
+
+            <pre><code>// UserContext.js
+import { createContext } from "react";
+
+export const UserContext = createContext(null);</code></pre>
+
+            <pre><code>// App.jsx
+import { useState } from "react";
+import { UserContext } from "./UserContext";
+import Navbar from "./Navbar";
+
+function App() {
+  const [user] = useState("Lewis");
+
+  return (
+    &lt;UserContext.Provider value={user}&gt;
+      &lt;Navbar /&gt;
+    &lt;/UserContext.Provider&gt;
+  );
+}
+
+export default App;</code></pre>
+
+            <pre><code>// UserMenu.jsx
+import { useContext } from "react";
+import { UserContext } from "./UserContext";
+
+function UserMenu() {
+  const user = useContext(UserContext);
+
+  return &lt;p&gt;Welcome {user}&lt;/p&gt;;
+}
+
+export default UserMenu;</code></pre>
+
+            <div class="note">
+              Context lets components share data without passing props through
+              every intermediate component.
+            </div>
+          </section>
+
+          <section id="folders">
+            <span class="label">Pattern 5</span>
+            <h2>Simple folder architecture</h2>
+            <p>Organize by responsibility so the project is easy to scan.</p>
+
+            <div class="folder-tree">
+              src ├── components │ ├── TodoInput.jsx │ └── TodoList.jsx │ ├──
+              pages │ └── Home.jsx │ ├── context │ └── UserContext.js │ ├──
+              hooks │ └── useFetch.js │ ├── App.jsx └── main.jsx
+            </div>
+
+            <div class="card-grid">
+              <div class="card">
+                <h4>components</h4>
+                <p>Reusable pieces like buttons, forms, lists, and cards.</p>
+              </div>
+              <div class="card">
+                <h4>pages</h4>
+                <p>
+                  Full screens that usually load data and compose components.
+                </p>
+              </div>
+              <div class="card">
+                <h4>hooks</h4>
+                <p>Reusable logic shared by multiple components.</p>
+              </div>
+              <div class="card">
+                <h4>context</h4>
+                <p>Shared state providers for broader app data.</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="hook-building">
+            <span class="label">Making Hooks</span>
+            <h2>How custom hooks are made and used</h2>
+            <p>
+              A custom hook is just a JavaScript function that starts with
+              <code>use</code> and calls other hooks inside it.
+            </p>
+
+            <div class="flow">
+              Typical process: 1. Notice repeated component logic 2. Move that
+              logic into a function named useSomething 3. Keep state and effects
+              inside that function 4. Return the values or functions the UI
+              needs 5. Call the hook from a component
+            </div>
+
+            <pre><code>// hooks/useCounter.js
+import { useState } from "react";
+
+function useCounter(initialValue = 0) {
+  const [count, setCount] = useState(initialValue);
+
+  function increment() {
+    setCount((current) =&gt; current + 1);
+  }
+
+  function decrement() {
+    setCount((current) =&gt; current - 1);
+  }
+
+  function reset() {
+    setCount(initialValue);
+  }
+
+  return { count, increment, decrement, reset };
+}
+
+export default useCounter;</code></pre>
+
+            <pre><code>// components/Counter.jsx
+import useCounter from "../hooks/useCounter";
+
+function Counter() {
+  const { count, increment, decrement, reset } = useCounter(0);
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;{count}&lt;/p&gt;
+      &lt;button onClick={increment}&gt;+&lt;/button&gt;
+      &lt;button onClick={decrement}&gt;-&lt;/button&gt;
+      &lt;button onClick={reset}&gt;Reset&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default Counter;</code></pre>
+
+            <div class="note">
+              The component stays focused on rendering, while the hook owns the
+              reusable behavior.
+            </div>
+          </section>
+
+          <section id="custom-hooks">
+            <span class="label">Examples</span>
+            <h2>Custom hook examples</h2>
+
+            <h3>1. useFetch Hook</h3>
+            <p>
+              This is a practical example because it extracts data-loading logic
+              into one reusable place.
+            </p>
+
+            <pre><code>// hooks/useFetch.js
+import { useState, useEffect } from "react";
+
+function useFetch(url) {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() =&gt; {
+    fetch(url)
+      .then((response) =&gt; response.json())
+      .then((result) =&gt; {
+        setData(result);
+        setLoading(false);
+      });
+  }, [url]);
+
+  return { data, loading };
+}
+
+export default useFetch;</code></pre>
+
+            <pre><code>// components/UserList.jsx
+import useFetch from "../hooks/useFetch";
+
+function UserList() {
+  const { data: users, loading } = useFetch(
+    "https://jsonplaceholder.typicode.com/users"
+  );
+
+  if (loading) {
+    return &lt;p&gt;Loading...&lt;/p&gt;;
+  }
+
+  return (
+    &lt;ul&gt;
+      {users.map((user) =&gt; (
+        &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}
+
+export default UserList;</code></pre>
+
+            <div class="note">
+              This is the clean version of where data is loaded: the fetch logic
+              can live in the hook, and the component consumes the result.
+            </div>
+
+            <h3>2. useToggle Hook</h3>
+            <pre><code>// hooks/useToggle.js
+import { useState } from "react";
+
+function useToggle(initialValue = false) {
+  const [value, setValue] = useState(initialValue);
+
+  function toggle() {
+    setValue((current) =&gt; !current);
+  }
+
+  return [value, toggle];
+}
+
+export default useToggle;</code></pre>
+
+            <pre><code>import useToggle from "../hooks/useToggle";
+
+function ToggleMessage() {
+  const [visible, toggle] = useToggle(false);
+
+  return (
+    &lt;div&gt;
+      &lt;button onClick={toggle}&gt;Toggle&lt;/button&gt;
+      {visible &amp;&amp; &lt;p&gt;Hello React!&lt;/p&gt;}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+            <h3>3. useLocalStorage Hook</h3>
+            <pre><code>// hooks/useLocalStorage.js
+import { useState } from "react";
+
+function useLocalStorage(key, initialValue) {
+  const [value, setValue] = useState(() =&gt; {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : initialValue;
+  });
+
+  function updateValue(newValue) {
+    setValue(newValue);
+    localStorage.setItem(key, JSON.stringify(newValue));
+  }
+
+  return [value, updateValue];
+}
+
+export default useLocalStorage;</code></pre>
+
+            <pre><code>import useLocalStorage from "../hooks/useLocalStorage";
+
+function NameInput() {
+  const [name, setName] = useLocalStorage("name", "");
+
+  return (
+    &lt;div&gt;
+      &lt;input value={name} onChange={(e) =&gt; setName(e.target.value)} /&gt;
+      &lt;p&gt;Hello {name}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+          </section>
+
+          <section id="rules">
+            <span class="label">Remember</span>
+            <h2>Key hook rules</h2>
+            <ul>
+              <li>Hooks must start with <code>use</code>.</li>
+              <li>Hooks can use other hooks.</li>
+              <li>Hooks cannot be called inside loops or conditions.</li>
+              <li>
+                Hooks help reuse logic across components instead of copying
+                code.
+              </li>
+            </ul>
+          </section>
+        </main>
+      </div>
+
+      <footer>
+        Strong React code comes from clear component boundaries, stable data
+        ownership, and reusable hooks.
+      </footer>
+    </div>
   </body>
 </html>
